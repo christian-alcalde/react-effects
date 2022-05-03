@@ -14,6 +14,7 @@ function Deck() {
   // const [cardsRemaining, setCardsRemaining] = useState(52);
   const [isLoading, setIsLoading] = useState(true);
   const [toggleDisabled, setToggleDisabled] = useState(false);
+  const [toggleShuffle, setToggleShuffle] = useState(false);
 
   useEffect(function getDeck() {
     async function getDeckId() {
@@ -37,12 +38,23 @@ function Deck() {
     setDeck((prevDeck) => [...prevDeck, response.data.cards[0]]);
     // setCardsRemaining(response.data.remaining);
   }
+  async function shuffleDeck() {
+    setToggleShuffle(true);
+    await axios.get(`http://deckofcardsapi.com/api/deck/${deckId}/shuffle`);
+    setDeck([]);
+
+    setToggleShuffle(false);
+  }
 
   if (isLoading) return <div>Loading...</div>;
   console.log("deck length", deck.length);
 
   return (
     <div>
+      <button disabled={toggleShuffle} onClick={shuffleDeck}>
+        shuffle deck
+      </button>{" "}
+      <span />
       <button disabled={toggleDisabled} onClick={getCardAxios}>
         Get a Card
       </button>
