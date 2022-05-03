@@ -1,23 +1,35 @@
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import { useEffect, useState } from "react";
+import Card from "./Card";
+import axios from "axios";
 
 function App() {
+  const [deck, setDeck] = useState({
+    deckId: null,
+    isLoading: true,
+  });
+
+  useEffect(function getDeck() {
+    async function getDeckId() {
+      const response = await axios.get(
+        "http://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1"
+      );
+      setDeck({
+        deckId: response.data.deck_id,
+        isLoading: false,
+      });
+    }
+    getDeckId();
+  }, []);
+
+  if (deck.isLoading) return <div>Loading...</div>;
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <button onClick={() => <Card deckId={deck.deckId} />}>Get a Card</button>
+      <h1>{deck.deckId}</h1>
+
+      <Card deckId={deck.deckId} />
     </div>
   );
 }
