@@ -3,9 +3,9 @@
  * @param {Obj} Card
  * @returns
  */
-function Card({ card }) {
+function Card({ key, card }) {
   return (
-    <div>
+    <div key={key}>
       <img src={card.image} alt={card.code}></img>
     </div>
   );

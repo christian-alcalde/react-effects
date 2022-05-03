@@ -9,47 +9,45 @@ import Card from "./Card";
  * @returns Card component
  */
 function Deck() {
-  const [deck, setDeck] = useState({
-    deckId: null,
-    isLoading: true,
-    cardDrawn: null,
-    cardsRemaining: 52,
-  });
+  const [deckId, setDeckId] = useState(null);
+  const [deck, setDeck] = useState([]);
+  // const [cardsRemaining, setCardsRemaining] = useState(52);
+  const [isLoading, setIsLoading] = useState(true);
+  const [toggleDisabled, setToggleDisabled] = useState(false);
 
   useEffect(function getDeck() {
     async function getDeckId() {
       const response = await axios.get(
         "http://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1"
       );
-      setDeck({
-        deckId: response.data.deck_id,
-        isLoading: false,
-      });
+      setIsLoading(false);
+      setDeckId(response.data.deck_id);
     }
     getDeckId();
   }, []);
 
   async function getCardAxios() {
     const response = await axios.get(
-      `http://deckofcardsapi.com/api/deck/${deck.deckId}/draw/?count=1`
+      `http://deckofcardsapi.com/api/deck/${deckId}/draw/`
     );
-    if (deck.cardsRemaining === 0) {
-      return;
+    console.log("remaining", response.data.remaining);
+    if (response.data.remaining === 0) {
+      setToggleDisabled(true);
     }
-    setDeck({
-      ...deck,
-      cardDrawn: response.data.cards[0],
-      cardsRemaining: response.data.remaining,
-    });
+    setDeck((prevDeck) => [...prevDeck, response.data.cards[0]]);
+    // setCardsRemaining(response.data.remaining);
   }
 
-  if (deck.isLoading) return <div>Loading...</div>;
+  if (isLoading) return <div>Loading...</div>;
+  console.log("deck length", deck.length);
 
   return (
     <div>
-      <button onClick={getCardAxios}>Get a Card</button>
-      {deck.cardsRemaining === 0 && <div>No more Cards</div>}
-      {deck.cardDrawn && <Card card={deck.cardDrawn} />}
+      <button disabled={toggleDisabled} onClick={getCardAxios}>
+        Get a Card
+      </button>
+      {deck.length === 52 && <h2>No more Cards</h2>}
+      {deck && deck.map((card) => <Card key={card.code} card={card} />)}
     </div>
   );
 }
